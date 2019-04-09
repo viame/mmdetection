@@ -1,11 +1,12 @@
 import os
+import io
 import subprocess
 import time
 from setuptools import find_packages, setup
 
 
 def readme():
-    with open('README.md', encoding='utf-8') as f:
+    with io.open('README.md', encoding='utf-8') as f:
         content = f.read()
     return content
 
