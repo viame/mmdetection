@@ -7,9 +7,9 @@ from torch.utils.data import DataLoader
 from .sampler import GroupSampler, DistributedGroupSampler
 
 # https://github.com/pytorch/pytorch/issues/973
-import resource
-rlimit = resource.getrlimit(resource.RLIMIT_NOFILE)
-resource.setrlimit(resource.RLIMIT_NOFILE, (4096, rlimit[1]))
+#import resource
+#rlimit = resource.getrlimit(resource.RLIMIT_NOFILE)
+#resource.setrlimit(resource.RLIMIT_NOFILE, (4096, rlimit[1]))
 
 
 def build_dataloader(dataset,

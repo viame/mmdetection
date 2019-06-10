@@ -4,7 +4,8 @@ import math
 import torch
 import numpy as np
 
-from torch.distributed import get_world_size, get_rank
+import torch.distributed as dist
+
 from torch.utils.data.sampler import Sampler
 
 
@@ -69,9 +70,9 @@ class DistributedGroupSampler(Sampler):
                  num_replicas=None,
                  rank=None):
         if num_replicas is None:
-            num_replicas = get_world_size()
+            num_replicas = dist.get_world_size()
         if rank is None:
-            rank = get_rank()
+            rank = dist.get_rank()
         self.dataset = dataset
         self.samples_per_gpu = samples_per_gpu
         self.num_replicas = num_replicas
