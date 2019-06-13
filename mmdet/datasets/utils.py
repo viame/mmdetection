@@ -5,7 +5,10 @@ import mmcv
 from mmcv.runner import obj_from_dict
 import torch
 
+import matplotlib
+matplotlib.use( 'Agg' ) # bypass multiple Qt load issues
 import matplotlib.pyplot as plt
+
 import numpy as np
 from .concat_dataset import ConcatDataset
 from .repeat_dataset import RepeatDataset
