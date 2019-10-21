@@ -16,4 +16,4 @@ class AssignResult(object):
         self.max_overlaps = torch.cat(
             [self.max_overlaps.new_ones(self.num_gts), self.max_overlaps])
         if self.labels is not None:
-            self.labels = torch.cat([gt_labels, self.labels])
+            self.labels = torch.cat([gt_labels.long(), self.labels])
