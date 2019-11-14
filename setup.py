@@ -1,4 +1,5 @@
 import os
+import sys
 import platform
 import subprocess
 import time
@@ -89,9 +90,20 @@ def get_version():
 
 def make_cuda_ext(name, module, sources):
 
+    extra_include_args = []
+    extra_link_args = []
+
+    if platform.system() == 'Windows':
+        extra_include_args.append( os.path.join( os.path.dirname(
+          os.path.dirname( sys.executable ) ), "include" ) )
+        extra_link_args.append( "/libpath:" + str( os.path.join( os.path.dirname(
+          os.path.dirname( sys.executable ) ), "lib" ) ) )
+
     return CUDAExtension(
         name='{}.{}'.format(module, name),
         sources=[os.path.join(*module.split('.'), p) for p in sources],
+        include_dirs=extra_include_args,
+        extra_link_args=extra_link_args,
         extra_compile_args={
             'cxx': [],
             'nvcc': [
@@ -104,17 +116,26 @@ def make_cuda_ext(name, module, sources):
 
 def make_cython_ext(name, module, sources):
     extra_compile_args = None
-    if platform.system() != 'Windows':
+    extra_include_args = [ np.get_include() ]
+    if platform.system() == 'Windows':
+        extra_include_args.append( os.path.join( os.path.dirname(
+          os.path.dirname( sys.executable ) ), "include" ) )
+        extra_compile_args = {}
+        extra_link_args = [ "/libpath:" + str( os.path.join( os.path.dirname(
+          os.path.dirname( sys.executable ) ), "lib" ) ) ]
+    else:
         extra_compile_args = {
             'cxx': ['-Wno-unused-function', '-Wno-write-strings']
         }
+        extra_link_args = []
 
     extension = Extension(
         '{}.{}'.format(module, name),
         [os.path.join(*module.split('.'), p) for p in sources],
-        include_dirs=[np.get_include()],
+        include_dirs=extra_include_args,
         language='c++',
-        extra_compile_args=extra_compile_args)
+        extra_compile_args=extra_compile_args,
+        extra_link_args=extra_link_args)
     extension, = cythonize(extension)
     return extension
 
