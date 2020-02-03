@@ -6,4 +6,4 @@ numpy
 six
 terminaltables
 torch>=1.1
-torchvision
+torchvision>=0.4.0
