@@ -1,5 +1,8 @@
 import warnings
 
+import matplotlib
+matplotlib.use( 'Agg' ) # bypass multiple Qt load issue
+
 import matplotlib.pyplot as plt
 import mmcv
 import numpy as np

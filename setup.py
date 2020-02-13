@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
+import sys
 import platform
 import subprocess
 import time
@@ -95,6 +96,15 @@ def get_version():
 
 def make_cuda_ext(name, module, sources):
 
+    extra_include_args = []
+    extra_link_args = []
+
+    if platform.system() == 'Windows':
+        extra_include_args.append( os.path.join( os.path.dirname(
+          os.path.dirname( sys.executable ) ), "include" ) )
+        extra_link_args.append( "/libpath:" + str( os.path.join( os.path.dirname(
+          os.path.dirname( sys.executable ) ), "lib" ) ) )
+
     define_macros = []
 
     if torch.cuda.is_available() or os.getenv('FORCE_CUDA', '0') == '1':
@@ -105,6 +115,8 @@ def make_cuda_ext(name, module, sources):
     return CUDAExtension(
         name='{}.{}'.format(module, name),
         sources=[os.path.join(*module.split('.'), p) for p in sources],
+        include_dirs=extra_include_args,
+        extra_link_args=extra_link_args,
         define_macros=define_macros,
         extra_compile_args={
             'cxx': [],
