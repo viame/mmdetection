@@ -5,14 +5,10 @@ import sys
 import platform
 import subprocess
 import time
-from setuptools import Extension, dist, find_packages, setup
+from setuptools import find_packages, setup
 
 import torch
 from torch.utils.cpp_extension import BuildExtension, CUDAExtension
-
-dist.Distribution().fetch_build_eggs(['Cython', 'numpy>=1.11.1'])
-import numpy as np  # noqa: E402, isort:skip
-from Cython.Build import cythonize  # noqa: E402, isort:skip
 
 
 def readme():
@@ -22,10 +18,10 @@ def readme():
 
 
 MAJOR = 1
-MINOR = 0
+MINOR = 1
 PATCH = 0
 SUFFIX = ''
-if PATCH:
+if PATCH != '':
     SHORT_VERSION = '{}.{}.{}{}'.format(MAJOR, MINOR, PATCH, SUFFIX)
 else:
     SHORT_VERSION = '{}.{}{}'.format(MAJOR, MINOR, SUFFIX)
@@ -126,32 +122,6 @@ def make_cuda_ext(name, module, sources):
                 '-D__CUDA_NO_HALF2_OPERATORS__',
             ]
         })
-
-
-def make_cython_ext(name, module, sources):
-    extra_compile_args = None
-    extra_include_args = [ np.get_include() ]
-    if platform.system() == 'Windows':
-        extra_include_args.append( os.path.join( os.path.dirname(
-          os.path.dirname( sys.executable ) ), "include" ) )
-        extra_compile_args = {}
-        extra_link_args = [ "/libpath:" + str( os.path.join( os.path.dirname(
-          os.path.dirname( sys.executable ) ), "lib" ) ) ]
-    else:
-        extra_compile_args = {
-            'cxx': ['-Wno-unused-function', '-Wno-write-strings']
-        }
-        extra_link_args = []
-
-    extension = Extension(
-        '{}.{}'.format(module, name),
-        [os.path.join(*module.split('.'), p) for p in sources],
-        include_dirs=extra_include_args,
-        language='c++',
-        extra_compile_args=extra_compile_args,
-        extra_link_args=extra_link_args)
-    extension, = cythonize(extension)
-    return extension
 
 
 def parse_requirements(fname='requirements.txt', with_version=True):
@@ -270,10 +240,6 @@ if __name__ == '__main__':
                 name='compiling_info',
                 module='mmdet.ops.utils',
                 sources=['src/compiling_info.cpp']),
-            make_cython_ext(
-                name='soft_nms_cpu',
-                module='mmdet.ops.nms',
-                sources=['src/soft_nms_cpu.pyx']),
             make_cuda_ext(
                 name='nms_cpu',
                 module='mmdet.ops.nms',
@@ -317,6 +283,17 @@ if __name__ == '__main__':
                 sources=[
                     'src/masked_conv2d_cuda.cpp', 'src/masked_conv2d_kernel.cu'
                 ]),
+            make_cuda_ext(
+                name='carafe_cuda',
+                module='mmdet.ops.carafe',
+                sources=['src/carafe_cuda.cpp', 'src/carafe_cuda_kernel.cu']),
+            make_cuda_ext(
+                name='carafe_naive_cuda',
+                module='mmdet.ops.carafe',
+                sources=[
+                    'src/carafe_naive_cuda.cpp',
+                    'src/carafe_naive_cuda_kernel.cu'
+                ])
         ],
         cmdclass={'build_ext': BuildExtension},
         zip_safe=False)
