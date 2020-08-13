@@ -80,7 +80,7 @@ Assume that you have already downloaded the checkpoints to the directory `checkp
 1. Test Faster R-CNN and visualize the results. Press any key for the next image.
 
    ```shell
-   python tools/test.py configs/faster_rcnn_r50_fpn_1x_coco.py \
+   python tools/test.py configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py \
        checkpoints/faster_rcnn_r50_fpn_1x_20181010-3d1b3351.pth \
        --show
    ```
@@ -88,7 +88,7 @@ Assume that you have already downloaded the checkpoints to the directory `checkp
 2. Test Faster R-CNN and save the painted images for latter visualization.
 
    ```shell
-   python tools/test.py configs/faster_rcnn_r50_fpn_1x.py \
+   python tools/test.py configs/faster_rcnn/faster_rcnn_r50_fpn_1x.py \
        checkpoints/faster_rcnn_r50_fpn_1x_20181010-3d1b3351.pth \
        --show-dir faster_rcnn_r50_fpn_1x_results
    ```
@@ -112,7 +112,7 @@ Assume that you have already downloaded the checkpoints to the directory `checkp
 5. Test Mask R-CNN with 8 GPUs, and evaluate the **classwise** bbox and mask AP.
 
    ```shell
-   ./tools/dist_test.sh configs/mask_rcnn_r50_fpn_1x_coco.py \
+   ./tools/dist_test.sh configs/mask_rcnn/mask_rcnn_r50_fpn_1x_coco.py \
        checkpoints/mask_rcnn_r50_fpn_1x_20181010-069fa190.pth \
        8 --out results.pkl --eval bbox segm --options "classwise=True"
    ```
@@ -120,7 +120,7 @@ Assume that you have already downloaded the checkpoints to the directory `checkp
 6. Test Mask R-CNN on COCO test-dev with 8 GPUs, and generate the json file to be submit to the official evaluation server.
 
    ```shell
-   ./tools/dist_test.sh configs/mask_rcnn_r50_fpn_1x_coco.py \
+   ./tools/dist_test.sh configs/mask_rcnn/mask_rcnn_r50_fpn_1x_coco.py \
        checkpoints/mask_rcnn_r50_fpn_1x_20181010-069fa190.pth \
        8 --format-only --options "jsonfile_prefix=./mask_rcnn_test-dev_results"
    ```
@@ -177,7 +177,7 @@ Here is an example of building the model and test given images.
 from mmdet.apis import init_detector, inference_detector
 import mmcv
 
-config_file = 'configs/faster_rcnn_r50_fpn_1x_coco.py'
+config_file = 'configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py'
 checkpoint_file = 'checkpoints/faster_rcnn_r50_fpn_1x_20181010-3d1b3351.pth'
 
 # build the model from a config file and a checkpoint file
@@ -213,7 +213,7 @@ from mmdet.apis import init_detector, async_inference_detector
 from mmdet.utils.contextmanagers import concurrent
 
 async def main():
-    config_file = 'configs/faster_rcnn_r50_fpn_1x_coco.py'
+    config_file = 'configs/faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py'
     checkpoint_file = 'checkpoints/faster_rcnn_r50_fpn_1x_20181010-3d1b3351.pth'
     device = 'cuda:0'
     model = init_detector(config_file, checkpoint=checkpoint_file, device=device)
@@ -265,7 +265,7 @@ According to the [Linear Scaling Rule](https://arxiv.org/abs/1706.02677), you ne
 python tools/train.py ${CONFIG_FILE} [optional arguments]
 ```
 
-If you want to specify the working directory in the command, you can add an argument `--work_dir ${YOUR_WORK_DIR}`.
+If you want to specify the working directory in the command, you can add an argument `--work-dir ${YOUR_WORK_DIR}`.
 
 ### Train with multiple GPUs
 
@@ -445,13 +445,17 @@ Please refer to [robustness_benchmarking.md](robustness_benchmarking.md).
 
 ### Convert to ONNX (experimental)
 
-We provide a script to convert model to [ONNX](https://github.com/onnx/onnx) format. The converted model could be visualized by tools like [Netron](https://github.com/lutzroeder/netron).
+We provide a script to convert model to [ONNX](https://github.com/onnx/onnx) format. The converted model could be visualized by tools like [Netron](https://github.com/lutzroeder/netron). Besides, we also support comparing the output results between Pytorch and ONNX model.
 
 ```shell
-python tools/pytorch2onnx.py ${CONFIG_FILE} ${CHECKPOINT_FILE} --out ${ONNX_FILE} [--shape ${INPUT_SHAPE}]
+python tools/pytorch2onnx.py ${CONFIG_FILE} ${CHECKPOINT_FILE} --output_file ${ONNX_FILE} [--shape ${INPUT_SHAPE} --verify]
 ```
 
-**Note**: This tool is still experimental. Customized operators are not supported for now. We set `use_torchvision=True` on-the-fly for `RoIPool` and `RoIAlign`.
+**Note**: This tool is still experimental. Some customized operators are not supported for now. We only support exporting RetinaNet model at this moment.
+
+### Visualize the output results
+
+If you need a lightweight GUI for visualizing the detection results, you can refer [DetVisGUI project](https://github.com/Chien-Hung/DetVisGUI/tree/mmdetection).
 
 ## Tutorials
 
