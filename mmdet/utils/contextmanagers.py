@@ -4,6 +4,7 @@ import logging
 import os
 import time
 from typing import List
+from async_generator import async_generator, yield_, asynccontextmanager
 
 import torch
 
@@ -12,7 +13,8 @@ logger = logging.getLogger(__name__)
 DEBUG_COMPLETED_TIME = bool(os.environ.get('DEBUG_COMPLETED_TIME', False))
 
 
-@contextlib.asynccontextmanager
+@asynccontextmanager
+@async_generator
 async def completed(trace_name='',
                     name='',
                     sleep_interval=0.05,
@@ -87,7 +89,8 @@ async def completed(trace_name='',
                         stream_times_ms)
 
 
-@contextlib.asynccontextmanager
+@asynccontextmanager
+@async_generator
 async def concurrent(streamqueue: asyncio.Queue,
                      trace_name='concurrent',
                      name='stream'):
